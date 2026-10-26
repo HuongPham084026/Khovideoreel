@@ -297,12 +297,187 @@ function Vlog({ f }: { f: Fields }) {
   );
 }
 
+/* ---------- 13. Bài học đắt giá (ảnh + chú thích) ---------- */
+function BaiHoc({ f }: { f: Fields }) {
+  const K = useK();
+  const p = useLoop(3);
+  return (
+    <Frame bg="#1238C9" color="#FFFFFF">
+      <div style={abs({ left: c(6), right: c(6), top: c(8), height: c(120), borderRadius: c(6), background: K("linear-gradient(160deg,#7FB6FF 0%,#FFD0A8 100%)"), overflow: "hidden", ...useIn(0, "scale") })}>
+        <div style={abs({ left: c(-8), top: c(60) , width: c(70), height: c(70), borderRadius: "50%", background: "rgba(255,255,255,0.35)", transform: `translateY(${-p * c(4)}px)` })} />
+        <div style={abs({ right: c(-10), top: c(14), width: c(56), height: c(56), borderRadius: "50%", background: "rgba(255,255,255,0.28)", transform: `translateY(${p * c(4)}px)` })} />
+      </div>
+      <div style={abs({ left: c(6), top: c(114), ...useIn(5, "left") })}>
+        <span style={{ display: "inline-block", background: K("#FFC21A"), color: K("#1A1A1A"), fontFamily: SERIF, fontSize: c(8.4), padding: `${c(1)}px ${c(3)}px`, boxShadow: "0 8px 0 rgba(0,0,0,0.18)" }}>{f.title}</span>
+      </div>
+      <div style={abs({ left: c(12), top: c(129), ...useIn(10, "left") })}>
+        <span style={{ display: "inline-block", background: K("#FFC21A"), color: K("#1A1A1A"), fontFamily: SERIF, fontSize: c(6.2), padding: `${c(0.8)}px ${c(3)}px`, boxShadow: "0 8px 0 rgba(0,0,0,0.18)" }}>{f.sub}</span>
+      </div>
+      <div style={abs({ left: 0, right: 0, bottom: c(8), textAlign: "center", fontSize: c(3.6), fontWeight: 600, color: K("#C9D6FF"), ...useIn(14) })}>{f.handle}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 14. Đang tải rồi ra mắt ---------- */
+function TaiRaMat({ f }: { f: Fields }) {
+  const K = useK();
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const split = fps * 2;
+  const loading = frame < split;
+  const reveal = Math.min(1, Math.max(0, (frame - split) / (fps * 0.6)));
+  const spin = Math.floor(frame / 4) % 8;
+  return (
+    <Frame bg={loading ? "#E6E6E6" : "#D9C7B0"} color="#2A2420">
+      {loading ? (
+        <>
+          <div style={abs({ left: c(30), top: c(78), width: c(40), height: c(40) })}>
+            {Array.from({ length: 8 }, (_, i) => {
+              const a = (i / 8) * Math.PI * 2;
+              const on = (i - spin + 8) % 8 === 0;
+              return <div key={i} style={abs({ left: c(20) + Math.sin(a) * c(14) - c(3.5), top: c(20) - Math.cos(a) * c(14) - c(3.5), width: c(7), height: c(7), borderRadius: "50%", background: K("#FFFFFF"), opacity: on ? 0.35 : 1 })} />;
+            })}
+          </div>
+          <div style={abs({ left: 0, right: 0, top: c(124), textAlign: "center", fontFamily: SERIF, fontStyle: "italic", fontSize: c(5), letterSpacing: "0.12em", color: K("#8A8A8A") })}>{f.loading}</div>
+        </>
+      ) : (
+        <>
+          <div style={abs({ left: 0, right: 0, top: c(36), textAlign: "center", fontFamily: SERIF, fontStyle: "italic", fontSize: c(6), letterSpacing: "0.1em", opacity: reveal })}>{f.tag}</div>
+          <div style={abs({ left: c(6), right: c(6), top: c(58), textAlign: "center", fontFamily: SERIF, fontStyle: "italic", fontSize: c(17), lineHeight: 1.08, opacity: reveal, transform: `scale(${0.85 + 0.15 * reveal})` })}>{f.name}</div>
+          <div style={abs({ left: 0, right: 0, bottom: c(22), textAlign: "center", fontWeight: 700, fontSize: c(4.2), letterSpacing: "0.12em", opacity: reveal })}>{f.cta}</div>
+        </>
+      )}
+    </Frame>
+  );
+}
+
+/* ---------- 15. Dịch vụ của tôi ---------- */
+function DichVu({ f }: { f: Fields }) {
+  const K = useK();
+  const card = (tag: string, t: string, d: string, delay: number) => (
+    <div style={{ background: K("#1B1D24"), border: K("2px solid #2C2F3A"), borderRadius: c(5), padding: c(4.4), ...useIn(delay, "left") }}>
+      <div style={{ display: "inline-block", background: K(NEON), color: K("#111216"), fontWeight: 800, fontSize: c(3), letterSpacing: "0.1em", padding: `${c(0.8)}px ${c(2.6)}px`, borderRadius: 999 }}>{tag}</div>
+      <div style={{ fontSize: c(5.6), fontWeight: 800, lineHeight: 1.22, marginTop: c(2) }}>{t}</div>
+      <div style={{ fontSize: c(3.8), fontWeight: 500, color: K("#9A9EAD"), marginTop: c(1) }}>{d}</div>
+    </div>
+  );
+  return (
+    <Frame bg="#101114" color="#FFFFFF">
+      <GridBg step={c(8)} color="rgba(255,255,255,0.05)" />
+      <div style={abs({ top: c(11), left: c(7), right: c(7), fontWeight: 800, fontSize: c(11), lineHeight: 1.08, ...useIn(0) })}>
+        {f.title} <span style={{ color: K(NEON) }}>{f.hl}</span>
+      </div>
+      <div style={abs({ left: c(7), right: c(7), top: c(52), display: "flex", flexDirection: "column", gap: c(3.6) })}>
+        {card(f.g1, f.t1, f.d1, 6)}{card(f.g2, f.t2, f.d2, 11)}{card(f.g3, f.t3, f.d3, 16)}
+      </div>
+      <div style={abs({ left: 0, right: 0, bottom: c(9), textAlign: "center", fontWeight: 600, fontSize: c(3.8), color: K("#9A9EAD"), ...useIn(19) })}>{f.foot}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 16. Vì sao app này hợp bạn ---------- */
+function VaiTinhNang({ f }: { f: Fields }) {
+  const K = useK();
+  const t = useLoop(2.4);
+  const bubble = (txt: string, x: number, y: number, delay: number, ph: number) => (
+    <div style={abs({ left: c(x), top: c(y), background: K("#FFFFFF"), color: K("#0B1F6B"), fontWeight: 800, fontSize: c(3.8), padding: `${c(1.8)}px ${c(3.4)}px`, borderRadius: c(3), boxShadow: "0 10px 0 rgba(0,0,0,0.18)", ...useIn(delay, "scale"), marginTop: Math.sin(t * Math.PI * 2 + ph) * c(1.2) })}>{txt}</div>
+  );
+  return (
+    <Frame bg="linear-gradient(180deg,#0A2BC0 0%,#1B49E8 100%)" color="#FFFFFF">
+      <div style={abs({ top: c(8), left: 0, right: 0, textAlign: "center", fontWeight: 600, fontSize: c(3.8), opacity: 0.8, ...useIn(0) })}>{f.brand}</div>
+      <div style={abs({ top: c(14), left: c(6), right: c(6), textAlign: "center", fontWeight: 800, fontSize: c(10), lineHeight: 1.1, ...useIn(2) })}>{f.title}</div>
+      <div style={abs({ left: c(27), top: c(58), width: c(46), height: c(92), background: K("#0B1033"), borderRadius: c(8), padding: c(2), ...useIn(6) })}>
+        <div style={{ width: "100%", height: "100%", borderRadius: c(6.4), background: K("linear-gradient(180deg,#FFFFFF,#E4EBFF)"), padding: c(3), display: "flex", flexDirection: "column", gap: c(2.4) }}>
+          {[80, 100, 64, 90].map((w, i) => <div key={i} style={{ width: `${w}%`, height: i === 1 ? c(16) : c(3.4), borderRadius: c(1.6), background: K(i === 1 ? "#B8C8FF" : "#D5DEFF") }} />)}
+        </div>
+      </div>
+      {bubble(f.b1, 6, 70, 10, 0)}{bubble(f.b2, 62, 94, 14, 2)}{bubble(f.b3, 8, 118, 18, 4)}
+      <div style={abs({ left: 0, right: 0, bottom: c(8), textAlign: "center", fontWeight: 700, fontSize: c(4), ...useIn(20) })}>{f.foot}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 17. Cẩm nang cho người mới ---------- */
+function CamNang({ f }: { f: Fields }) {
+  const K = useK();
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const hs = [28, 40, 34, 56, 48, 72, 64, 90];
+  return (
+    <Frame bg="#2F7BEF" color="#10224F">
+      <div style={abs({ left: c(8), right: c(8), top: c(14), bottom: c(36), background: K("#FFFFFF"), borderRadius: c(7), padding: c(5), boxShadow: "0 14px 0 rgba(0,0,0,0.16)", ...useIn(0, "scale") })}>
+        <div style={{ height: c(62), borderRadius: c(4), background: K("#EEF3FF"), display: "flex", alignItems: "flex-end", gap: c(1.6), padding: `0 ${c(3)}px`, borderBottom: K("4px solid #2F7BEF") }}>
+          {hs.map((h, i) => {
+            const g = Math.min(1, Math.max(0, (frame - (6 + i * 2)) / (fps * 0.5)));
+            return <div key={i} style={{ flex: 1, height: `${h * (1 - Math.pow(1 - g, 3))}%`, background: K(i === 7 ? "#10224F" : "#2F7BEF"), borderRadius: `${c(1)}px ${c(1)}px 0 0` }} />;
+          })}
+        </div>
+        <div style={{ fontWeight: 800, fontSize: c(9.4), lineHeight: 1.1, marginTop: c(5), ...useIn(8) }}>{f.title}</div>
+        <div style={{ fontWeight: 500, fontSize: c(4.2), lineHeight: 1.35, marginTop: c(2), color: K("#4A5A86"), ...useIn(12) }}>{f.sub}</div>
+      </div>
+      <div style={abs({ left: 0, right: 0, bottom: c(8), textAlign: "center", fontWeight: 700, fontSize: c(4), color: K("#FFFFFF"), ...useIn(15) })}>{f.handle}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 18. Hẹn gặp lại và liên hệ ---------- */
+function LienHe({ f }: { f: Fields }) {
+  const K = useK();
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const second = frame >= fps * 2;
+  const i0 = useIn(0, "scale"), i1 = useIn(fps * 2), i2 = useIn(fps * 2 + 6), i3 = useIn(fps * 2 + 10);
+  const pill = (t: string, st: object) => <div style={{ background: K("#0A84FF"), borderRadius: 999, padding: `${c(2)}px ${c(6)}px`, fontWeight: 800, fontSize: c(5), ...st }}>{t}</div>;
+  return (
+    <Frame bg="#0C0D11" color="#FFFFFF">
+      {!second ? (
+        <div style={abs({ top: c(66), left: c(12), width: c(76), height: c(76), borderRadius: "50%", background: K("#0A84FF"), display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontWeight: 800, fontSize: c(11), lineHeight: 1.1, ...i0 })}>{f.bye}</div>
+      ) : (
+        <div style={abs({ top: c(52), left: c(8), right: c(8), display: "flex", flexDirection: "column", gap: c(4) })}>
+          <div style={{ fontWeight: 800, fontSize: c(11), ...i1 }}>{f.contact}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: c(3), alignItems: "flex-start" }}>{pill(f.p1, i2)}{pill(f.p2, i3)}</div>
+        </div>
+      )}
+    </Frame>
+  );
+}
+
 const F = (key: string, label: string, def: string, long = false): FieldDef => ({ key, label, def, long });
 const COL = (key: string, label: string, def: string): FieldDef => ({ key, label, def, type: "color" });
 const SEL = (key: string, label: string, def: string, options: [string, string][]): FieldDef => ({ key, label, def, type: "select", options });
 const NUM = (key: string, label: string, def: string, min: number, max: number, step = 1): FieldDef => ({ key, label, def, type: "number", min, max, step });
 
 export const TEMPLATES: Template[] = [
+  { id: "n-bai-hoc", title: "Bài học đắt giá", cat: "Quote · Chia sẻ", seconds: 5, Comp: BaiHoc,
+    palette: ["#1238C9", "#FFFFFF", "#FFC21A", "#1A1A1A", "#C9D6FF", "#7FB6FF", "#FFD0A8"],
+    fields: [F("title", "Dòng tiêu đề", "Bài học khó"), F("sub", "Dòng phụ", "đã thay đổi mình"), F("handle", "Tên kênh", "@tenkenh")],
+    scenes: [["0–1s", "Khung ảnh phóng to vào"], ["1–3s", "Hai nhãn chữ vàng trượt vào"], ["3–5s", "Tên kênh"]],
+    how: ["Thay khung ảnh bằng ảnh thật của bạn trong Trình chỉnh sửa", "Dùng cho câu chuyện, bài học, trích dẫn ngắn"], kw: ["hard lessons", "photo caption", "story"] },
+  { id: "n-tai-ra-mat", title: "Đang tải rồi ra mắt", cat: "Ra mắt sản phẩm", seconds: 5, Comp: TaiRaMat,
+    palette: ["#E6E6E6", "#D9C7B0", "#2A2420", "#FFFFFF", "#8A8A8A"],
+    fields: [F("loading", "Chữ khi đang tải", "ĐANG TẢI..."), F("tag", "Dòng nhỏ", "SẢN PHẨM MỚI"), F("name", "Tên sản phẩm", "Tên Sản Phẩm", true), F("cta", "Dòng cuối", "XEM NGAY")],
+    scenes: [["0–2s", "Vòng tải xoay"], ["2–3s", "Tên sản phẩm hiện dần"], ["3–5s", "Lời kêu gọi"]],
+    how: ["Ghép đoạn quay sản phẩm làm nền phía sau", "Đổi tên sản phẩm và dòng cuối"], kw: ["loading", "new product", "reveal"] },
+  { id: "n-dich-vu", title: "Dịch vụ của tôi", cat: "Giới thiệu", seconds: 6, Comp: DichVu,
+    palette: ["#101114", "#FFFFFF", "#E4FF3A", "#1B1D24", "#2C2F3A", "#9A9EAD"],
+    fields: [F("title", "Tiêu đề", "Mình làm được"), F("hl", "Từ nổi bật", "gì cho bạn"), F("g1", "Nhãn 1", "THIẾT KẾ"), F("t1", "Việc 1", "Thiết kế web"), F("d1", "Chi tiết 1", "Gọn, đẹp, dễ dùng"), F("g2", "Nhãn 2", "VIDEO"), F("t2", "Việc 2", "Dựng video ngắn"), F("d2", "Chi tiết 2", "Reels, TikTok, Shorts"), F("g3", "Nhãn 3", "MARKETING"), F("t3", "Việc 3", "Email marketing"), F("d3", "Chi tiết 3", "Viết và lên lịch gửi"), F("foot", "Dòng cuối", "Nhắn mình để biết thêm")],
+    scenes: [["0–2s", "Tiêu đề"], ["2–8s", "Ba thẻ dịch vụ lần lượt trượt vào"], ["8–10s", "Dòng liên hệ"]],
+    how: ["Mỗi thẻ một dịch vụ, giữ chữ ngắn", "Ghép cảnh minh hoạ cho từng thẻ nếu có"], kw: ["our services", "cards", "intro"] },
+  { id: "n-tinh-nang", title: "Vì sao app này hợp bạn", cat: "Review tool", seconds: 6, Comp: VaiTinhNang,
+    palette: ["#0A2BC0", "#1B49E8", "#FFFFFF", "#0B1F6B", "#0B1033", "#E4EBFF", "#B8C8FF", "#D5DEFF"],
+    fields: [F("brand", "Tên app / công ty", "Tên App"), F("title", "Tiêu đề", "Vì sao app này hợp với bạn", true), F("b1", "Tính năng 1", "Nhanh"), F("b2", "Tính năng 2", "Dễ dùng"), F("b3", "Tính năng 3", "Đồng bộ"), F("foot", "Dòng cuối", "Tải miễn phí hôm nay")],
+    scenes: [["0–2s", "Tiêu đề + điện thoại"], ["2–7s", "Ba nhãn tính năng bật quanh điện thoại"], ["7–10s", "Lời kêu gọi tải app"]],
+    how: ["Thay màn hình điện thoại bằng ảnh chụp app thật", "Mỗi nhãn chỉ 1–2 từ"], kw: ["app feature", "phone mockup", "why this app"] },
+  { id: "n-cam-nang", title: "Cẩm nang cho người mới", cat: "Hướng dẫn", seconds: 6, Comp: CamNang,
+    palette: ["#2F7BEF", "#10224F", "#FFFFFF", "#EEF3FF", "#4A5A86"],
+    fields: [F("title", "Tiêu đề", "Đầu tư cho người mới", true), F("sub", "Mô tả", "Hướng dẫn từng bước để bắt đầu gọn gàng", true), F("handle", "Tên kênh", "@tenkenh")],
+    scenes: [["0–1s", "Thẻ trắng phóng to vào"], ["1–3s", "Biểu đồ cột mọc lên"], ["3–6s", "Tiêu đề + mô tả + tên kênh"]],
+    how: ["Đổi biểu đồ bằng ảnh minh hoạ của chủ đề bạn", "Dùng cho video giới thiệu bài hướng dẫn"], kw: ["guide card", "investing basics", "beginner"] },
+  { id: "n-lien-he", title: "Hẹn gặp lại và liên hệ", cat: "Kết video", seconds: 5, Comp: LienHe,
+    palette: ["#0C0D11", "#FFFFFF", "#0A84FF"],
+    fields: [F("bye", "Lời chào cuối", "Hẹn gặp lại"), F("contact", "Tiêu đề liên hệ", "Liên hệ:"), F("p1", "Thông tin 1", "0900 000 000"), F("p2", "Thông tin 2", "@tenkenh")],
+    scenes: [["0–2s", "Vòng tròn lời chào"], ["2–5s", "Thông tin liên hệ hiện ra"]],
+    how: ["Ghép cuối mọi video", "Đổi số điện thoại và tên kênh"], kw: ["see you next time", "contact us", "outro"] },
   { id: "s-tin-nong", title: "Tin nóng AI", cat: "Tin tức AI", seconds: 6, Comp: TinNong,
     palette: ["#0A1A52", "#1238C9", "#FF3B3B", "#C9D6FF", "#FFFFFF"],
     fields: [F("live", "Nhãn LIVE", "LIVE"), F("title", "Tiêu đề", "TIN NÓNG AI"), F("desc", "Mô tả ngắn", "Công cụ AI mới vừa ra mắt, làm video trong 30 giây", true), F("bar", "Nhãn thanh dưới", "MỚI"), F("tick1", "Chữ chạy 1", "Cập nhật AI mỗi ngày"), F("tick2", "Chữ chạy 2", "Theo dõi để không bỏ lỡ")],
@@ -386,5 +561,5 @@ export const TEMPLATES: Template[] = [
 ];
 
 export const defaults = (t: Template): Fields => Object.fromEntries(t.fields.map((x) => [x.key, x.def]));
-export const CATS = ["Tin tức AI", "Review tool", "Hook mở đầu", "So sánh", "Podcast · Quote", "Ra mắt sản phẩm", "Hướng dẫn", "Proof · Kết quả", "Chốt đơn · CTA", "Vlog", "Kết video", "Khác"];
+export const CATS = ["Quote · Chia sẻ", "Giới thiệu", "Tin tức AI", "Review tool", "Hook mở đầu", "So sánh", "Podcast · Quote", "Ra mắt sản phẩm", "Hướng dẫn", "Proof · Kết quả", "Chốt đơn · CTA", "Vlog", "Kết video", "Khác"];
 export { UI };
