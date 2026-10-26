@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { abs, c, DotBg, Frame, GridBg, useIn, useLoop } from "./anim";
 import { useK } from "./env";
@@ -442,12 +442,189 @@ function LienHe({ f }: { f: Fields }) {
   );
 }
 
+/* ---------- Mẫu khuyến mãi ---------- */
+/** Độ mờ của một đoạn thời gian [a, b] giây, có mờ vào/ra 0.25 giây */
+function useSeg(a: number, b: number) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+  return Math.max(0, Math.min(1, Math.min((t - a) / 0.25, (b - t) / 0.25)));
+}
+
+/* ---------- 19. Giảm giá độc quyền ---------- */
+function GiamGiaDQ({ f }: { f: Fields }) {
+  const K = useK();
+  const p = useLoop(2.6);
+  return (
+    <Frame bg="#07080C" color="#FFFFFF">
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
+        <defs><linearGradient id="gdq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={K("#19C6FF")} /><stop offset="1" stopColor={K("#A7FF3A")} /></linearGradient></defs>
+        <path d="M -40 330 L 360 -40" stroke="url(#gdq)" strokeWidth={6} fill="none" />
+        <path d="M 1120 1180 L 780 1960" stroke="url(#gdq)" strokeWidth={6} fill="none" />
+        <path d="M 1120 170 L 760 -40" stroke="url(#gdq)" strokeWidth={3} fill="none" opacity={0.6} />
+      </svg>
+      <div style={abs({ top: c(9), left: 0, right: 0, textAlign: "center", ...useIn(0) })}>
+        <div style={{ fontWeight: 800, fontSize: c(5), letterSpacing: "0.1em" }}>{f.brand}</div>
+        <div style={{ fontWeight: 500, fontSize: c(3), letterSpacing: "0.12em", opacity: 0.8 }}>{f.cat}</div>
+      </div>
+      <div style={abs({ top: c(36), left: c(8), right: c(8), textAlign: "center", fontWeight: 800, fontSize: c(10.4), lineHeight: 1.22, ...useIn(3) })}>{f.title}</div>
+      <div style={abs({ top: c(82), left: 0, right: 0, textAlign: "center", fontWeight: 700, fontSize: c(5), color: K("#A7FF3A"), ...useIn(9) })}>{f.off}</div>
+      <div style={abs({ top: c(92), left: 0, right: 0, textAlign: "center", fontWeight: 600, fontSize: c(3.2), letterSpacing: "0.04em", ...useIn(11) })}>{f.url}</div>
+      <div style={abs({ top: c(104), left: c(20), right: c(20), textAlign: "center", background: K("linear-gradient(90deg,#19C6FF,#A7FF3A)"), color: K("#07080C"), fontWeight: 800, fontSize: c(3.6), padding: `${c(1.4)}px 0`, transform: `scale(${1 + p * 0.03})`, ...useIn(13) })}>{f.tag}</div>
+      <div style={abs({ left: 0, right: 0, bottom: 0, height: c(60), background: K("linear-gradient(180deg,#1C2A25 0%,#3F5A4A 100%)"), ...useIn(6) })}>
+        <div style={abs({ left: c(34), top: c(8), width: c(32), height: c(32), borderRadius: "50%", background: K("#C9A88F") })} />
+        <div style={abs({ left: c(20), top: c(40), width: c(60), height: c(40), borderRadius: `${c(30)}px ${c(30)}px 0 0`, background: K("#2D3B36") })} />
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 20. Ưu đãi Black Friday neon ---------- */
+function BlackFriday({ f }: { f: Fields }) {
+  const K = useK();
+  const p = useLoop(2.4);
+  const glow = `0 0 ${c(2)}px ${K("#7CFF6B")}, 0 0 ${c(5)}px ${K("#3DDC4A")}`;
+  return (
+    <Frame bg="#050507" color="#FFFFFF">
+      <GridBg step={c(10)} color="rgba(255,120,40,0.12)" />
+      <div style={abs({ top: c(9), left: c(8), fontWeight: 800, fontSize: c(3.6), lineHeight: 1.25, letterSpacing: "0.04em", whiteSpace: "pre-line", ...useIn(0) })}>{f.top}</div>
+      <div style={abs({ left: c(8), top: c(34), width: c(84), height: c(84), borderRadius: "50%", background: K("linear-gradient(160deg,#FF8A1F 0%,#E8307A 55%,#4B4BFF 100%)"), transform: `rotate(${-18 + p * 6}deg) scaleY(0.82)`, filter: "blur(2px)", ...useIn(1, "scale") })} />
+      <div style={abs({ left: c(6), right: c(6), top: c(46), textAlign: "center", fontWeight: 800, fontSize: c(9.4), lineHeight: 1.2, color: K("#D6FFC0"), textShadow: glow, ...useIn(4) })}>{f.title}</div>
+      <div style={abs({ left: c(8), right: c(8), top: c(130), textAlign: "center", fontWeight: 700, fontSize: c(3.8), lineHeight: 1.6, ...useIn(10) })}>{f.l1}<br />{f.l2}</div>
+      <div style={abs({ left: c(8), right: c(8), top: c(150), textAlign: "center", fontWeight: 700, fontSize: c(3.2), color: K("#FFB36B"), ...useIn(13) })}>{f.l3}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 21. Đặt ngay giảm giá + nhập mã ---------- */
+function DatNgay({ f }: { f: Fields }) {
+  const K = useK();
+  const a = useSeg(-1, 3.1), b = useSeg(3.1, 99);
+  const win = (
+    <div style={{ background: K("#0E0F13"), border: K(`${c(0.5)}px solid #FFFFFF`), borderRadius: c(2) }}>
+      <div style={{ display: "flex", gap: c(1.2), padding: c(2) }}>{[0, 1, 2].map((i) => <div key={i} style={{ width: c(2), height: c(2), borderRadius: "50%", background: K("#FFFFFF"), opacity: 0.8 }} />)}</div>
+      <div style={{ height: c(78), background: K("linear-gradient(135deg,#3A0508,#0A0A0C)"), position: "relative", overflow: "hidden" }}>
+        <div style={abs({ left: c(30), top: c(6), width: c(32), height: c(66), borderRadius: c(5), background: K("linear-gradient(160deg,#E02B2B,#4A0C10)"), transform: "rotate(14deg)" })} />
+      </div>
+    </div>
+  );
+  return (
+    <Frame bg="#0A0A0C" color="#FFFFFF">
+      <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}><path d="M 0 880 L 380 740 L 520 940 L 0 1280 Z" fill={K("#C71D24")} opacity={0.9} /></svg>
+      <div style={abs({ top: c(9), left: c(8), fontWeight: 800, fontSize: c(3.8), ...useIn(0) })}>{f.brand}</div>
+      <div style={abs({ left: c(8), right: c(8), top: c(22), opacity: a })}>
+        <div style={{ fontWeight: 600, fontSize: c(8.2), lineHeight: 1.25 }}>{f.head}</div>
+        <div style={{ fontSize: c(3.8), opacity: 0.8, marginTop: c(5) }}>{f.sub}</div>
+        <div style={{ fontSize: c(9), marginTop: c(3) }}>→</div>
+      </div>
+      <div style={abs({ left: c(8), right: c(8), top: c(22), opacity: b })}>
+        <div style={{ fontWeight: 600, fontSize: c(8.2), lineHeight: 1.25 }}>{f.codeLabel}</div>
+        <div style={{ display: "inline-block", marginTop: c(2), background: K(NEON), color: K("#111216"), fontFamily: DISPLAY, fontSize: c(11), padding: `${c(0.6)}px ${c(3)}px` }}>{f.code}</div>
+        <div style={{ fontSize: c(3.8), opacity: 0.8, marginTop: c(3) }}>{f.note}</div>
+      </div>
+      <div style={abs({ left: c(8), right: c(8), top: c(76), ...useIn(6, "scale") })}>{win}</div>
+    </Frame>
+  );
+}
+
+/* ---------- 22. Chưa bao giờ dễ dàng đến thế → Mua ngay ---------- */
+function MuaNgay({ f }: { f: Fields }) {
+  const K = useK();
+  const a = useSeg(-1, 3), b = useSeg(3, 99);
+  return (
+    <Frame bg="#FFD92E" color="#111216">
+      <div style={abs({ left: c(5), right: c(5), top: c(6), height: c(100), borderRadius: c(2), background: K("linear-gradient(160deg,#B8B8B8,#6F6F6F)"), ...useIn(0, "scale") })}>
+        <div style={abs({ left: c(24), top: c(26), width: c(34), height: c(48), borderRadius: c(5), background: K("#F2A81D") })} />
+        <div style={abs({ left: c(40), top: c(10), width: c(24), height: c(24), borderRadius: "50%", background: K("#E8C7A6") })} />
+      </div>
+      <div style={abs({ left: 0, right: c(14), top: c(86), background: K("#111216"), color: K("#FFD92E"), padding: `${c(3)}px ${c(5)}px`, opacity: a })}>
+        <div style={{ color: K("#FFFFFF"), fontSize: c(3), letterSpacing: "0.16em", fontWeight: 600, textAlign: "center" }}>{f.small}</div>
+        <div style={{ fontFamily: DISPLAY, fontSize: c(8.4), lineHeight: 1.2, textAlign: "center", marginTop: c(1) }}>{f.l1}<br />{f.l2}</div>
+      </div>
+      <div style={abs({ left: 0, right: 0, top: c(112), textAlign: "center", opacity: b })}>
+        <div style={{ fontFamily: DISPLAY, fontSize: c(17), lineHeight: 1.1 }}>{f.buy}</div>
+        <div style={{ display: "inline-block", marginTop: c(4), background: K("#111216"), color: K("#FFFFFF"), fontWeight: 700, fontSize: c(4), padding: `${c(2)}px ${c(6)}px` }}>{f.url}</div>
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 23. Giảm giá + ghé cửa hàng ---------- */
+function GiamGiaCuaHang({ f }: { f: Fields }) {
+  const K = useK();
+  const a = useSeg(-1, 3), b = useSeg(3, 99);
+  return (
+    <Frame bg="linear-gradient(160deg,#F26B21 0%,#F7B21A 100%)" color="#FFFFFF">
+      <div style={abs({ left: 0, right: 0, top: 0, height: c(112), background: K("linear-gradient(160deg,#9A9A9A,#5D5D5D)"), opacity: a })}>
+        <div style={abs({ left: c(14), top: c(46), width: c(72), height: c(44), borderRadius: c(3), background: K("#D9DCE0"), transform: "perspective(900px) rotateX(18deg)" })} />
+      </div>
+      <div style={abs({ left: c(5), top: c(6), background: K("#FFFFFF"), color: K("#111216"), fontWeight: 700, fontSize: c(3), padding: `${c(0.8)}px ${c(2)}px`, opacity: a })}>{f.shop}</div>
+      <div style={abs({ left: c(5), top: c(122), right: c(5), fontWeight: 600, fontSize: c(8.4), lineHeight: 1.45, opacity: a })}>
+        <span style={{ background: K("#C2187B"), padding: `0 ${c(1.6)}px`, boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone" }}>{f.offer}</span>
+      </div>
+      <div style={abs({ left: 0, right: 0, top: 0, bottom: 0, background: K("#FFFFFF"), opacity: b })} />
+      <div style={abs({ left: c(8), right: c(8), top: c(48), opacity: b, color: K("#C2187B"), fontWeight: 600, fontSize: c(3.6) })}>{f.note}</div>
+      <div style={abs({ left: c(8), right: c(8), top: c(62), opacity: b })}>
+        <span style={{ background: K("#C2187B"), color: K("#FFFFFF"), fontWeight: 600, fontSize: c(8.4), lineHeight: 1.45, padding: `0 ${c(1.8)}px`, boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone" }}>{f.cta}</span>
+        <div style={{ color: K("#C2187B"), fontWeight: 600, fontSize: c(3.6), marginTop: c(4) }}>{f.url}</div>
+      </div>
+    </Frame>
+  );
+}
+
+/* ---------- 24. Làm việc từ xa (khung chữ viền mảnh) ---------- */
+function TuXa({ f }: { f: Fields }) {
+  const K = useK();
+  const a = useSeg(-1, 2.3), b = useSeg(2.3, 4.6), d = useSeg(4.6, 99);
+  const box = (op: number, children: ReactNode) => (
+    <div style={abs({ left: c(12), right: c(12), top: c(76), border: "2px solid rgba(255,255,255,0.85)", padding: `${c(5)}px ${c(5)}px`, textAlign: "center", opacity: op, background: "rgba(0,0,0,0.12)" })}>{children}</div>
+  );
+  return (
+    <Frame bg="linear-gradient(180deg,#26332F 0%,#0F1614 100%)" color="#FFFFFF">
+      <div style={abs({ left: c(14), top: c(104), width: c(72), height: c(46), borderRadius: c(3), background: K("#1B2220"), transform: "perspective(900px) rotateX(22deg)" })} />
+      {box(a, <div style={{ fontFamily: SERIF, fontSize: c(8) }}>{f.t1}</div>)}
+      {box(b, <><div style={{ fontSize: c(3.2), letterSpacing: "0.16em", fontWeight: 600 }}>{f.t2a}</div><div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: c(8), marginTop: c(1.5) }}>{f.t2b}</div></>)}
+      {box(d, <div style={{ fontFamily: SERIF, fontSize: c(7) }}>{f.t3}</div>)}
+    </Frame>
+  );
+}
+
 const F = (key: string, label: string, def: string, long = false): FieldDef => ({ key, label, def, long });
 const COL = (key: string, label: string, def: string): FieldDef => ({ key, label, def, type: "color" });
 const SEL = (key: string, label: string, def: string, options: [string, string][]): FieldDef => ({ key, label, def, type: "select", options });
 const NUM = (key: string, label: string, def: string, min: number, max: number, step = 1): FieldDef => ({ key, label, def, type: "number", min, max, step });
 
 export const TEMPLATES: Template[] = [
+  { id: "k-giam-gia-dq", title: "Giảm giá độc quyền", cat: "Khuyến mãi", seconds: 6, Comp: GiamGiaDQ,
+    palette: ["#07080C", "#FFFFFF", "#19C6FF", "#A7FF3A", "#1C2A25", "#3F5A4A", "#C9A88F", "#2D3B36"],
+    fields: [F("brand", "Tên thương hiệu", "TÊN THƯƠNG HIỆU"), F("cat", "Ngành hàng", "ĐỒ THỂ THAO"), F("title", "Tiêu đề", "GIẢM GIÁ ĐỘC QUYỀN TRỰC TUYẾN", true), F("off", "Mức giảm", "GIẢM ĐẾN 30%"), F("url", "Link mua", "MUA NGAY TẠI: WWW.TRANGWEB.VN"), F("tag", "Nhãn nổi bật", "ƯU ĐÃI GIỚI HẠN THỜI GIAN")],
+    scenes: [["0–2s", "Tên thương hiệu + đường chéo neon"], ["2–6s", "Tiêu đề và mức giảm"], ["6–10s", "Nhãn giới hạn thời gian + cảnh người dùng sản phẩm"]],
+    how: ["Thay phần ảnh dưới bằng video người dùng sản phẩm", "Chỉ ghi mức giảm và thời hạn đúng thật"], kw: ["sale", "discount", "promo"] },
+  { id: "k-black-friday", title: "Ưu đãi Black Friday", cat: "Khuyến mãi", seconds: 6, Comp: BlackFriday,
+    palette: ["#050507", "#FFFFFF", "#FF8A1F", "#E8307A", "#4B4BFF", "#D6FFC0", "#7CFF6B", "#3DDC4A", "#FFB36B"],
+    fields: [F("top", "Ngành hàng (nhiều dòng)", "THỜI TRANG\nTHỂ THAO\nAN NAM", true), F("title", "Tiêu đề", "ƯU ĐÃI ĐẶC BIỆT MỪNG BLACK FRIDAY", true), F("l1", "Dòng 1", "GIẢM ĐẾN 40% MỘT SỐ SẢN PHẨM"), F("l2", "Dòng 2", "MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN TRÊN 1 TRIỆU"), F("l3", "Dòng 3", "MUA NGAY TẠI: WWW.TRANGWEB.VN")],
+    scenes: [["0–1s", "Quả cầu màu + tiêu đề phát sáng"], ["1–5s", "Chi tiết ưu đãi"], ["5–6s", "Link mua"]],
+    how: ["Dùng cho dịp sale lớn: Black Friday, 11.11, 12.12", "Đổi mức giảm theo chương trình thật"], kw: ["black friday", "neon", "sale event"] },
+  { id: "k-dat-ngay", title: "Đặt ngay giảm 30% + nhập mã", cat: "Khuyến mãi", seconds: 6, Comp: DatNgay,
+    palette: ["#0A0A0C", "#C71D24", "#FFFFFF", "#111216", "#E4FF3A", "#0E0F13", "#3A0508", "#E02B2B", "#4A0C10"],
+    fields: [F("brand", "Tên công ty", "CÔNG TY ABC"), F("head", "Tiêu đề", "Đặt ngay để được giảm giá 30%!", true), F("sub", "Mô tả", "Tất cả sản phẩm mẫu mới"), F("codeLabel", "Dòng nhập mã", "Nhập mã khi thanh toán"), F("code", "Mã giảm giá", "GIAM30"), F("note", "Ghi chú", "Số lượng có hạn")],
+    scenes: [["0–3s", "Tiêu đề giảm giá + mũi tên"], ["3–6s", "Chuyển sang nhập mã + khung sản phẩm"]],
+    how: ["Đổi khung sản phẩm bằng ảnh chụp thật", "Mã giảm giá phải là mã thật và còn hạn"], kw: ["promo code", "discount", "phone deal"] },
+  { id: "k-mua-ngay", title: "Chưa bao giờ dễ dàng đến thế", cat: "Khuyến mãi", seconds: 6, Comp: MuaNgay,
+    palette: ["#FFD92E", "#111216", "#FFFFFF", "#B8B8B8", "#6F6F6F", "#F2A81D", "#E8C7A6"],
+    fields: [F("small", "Dòng nhỏ", "SOẠN HÀNH LÝ"), F("l1", "Dòng 1", "CHƯA BAO GIỜ"), F("l2", "Dòng 2", "DỄ DÀNG ĐẾN THẾ"), F("buy", "Lời kêu gọi", "MUA NGAY!"), F("url", "Link", "www.trangwebhay.vn")],
+    scenes: [["0–3s", "Ảnh lớn + khung chữ đen"], ["3–6s", "MUA NGAY! + link"]],
+    how: ["Thay khung ảnh bằng video sản phẩm", "Phù hợp quảng cáo ngắn một sản phẩm"], kw: ["buy now", "yellow ad", "cta"] },
+  { id: "k-giam-gia-cua-hang", title: "Giảm giá + ghé cửa hàng", cat: "Khuyến mãi", seconds: 6, Comp: GiamGiaCuaHang,
+    palette: ["#F26B21", "#F7B21A", "#FFFFFF", "#111216", "#C2187B", "#9A9A9A", "#5D5D5D", "#D9DCE0"],
+    fields: [F("shop", "Tên cửa hàng", "CỬA HÀNG ABC"), F("offer", "Ưu đãi", "Giảm 30% tất cả laptop!", true), F("note", "Ghi chú thời hạn", "Khuyến mãi chỉ áp dụng từ 1 - 15/8"), F("cta", "Lời kêu gọi", "Ghé các cửa hàng hoặc mua online!", true), F("url", "Link", "www.trangwebhay.vn")],
+    scenes: [["0–3s", "Ảnh sản phẩm + nhãn ưu đãi"], ["3–6s", "Nền trắng, lời kêu gọi + link"]],
+    how: ["Ghi rõ thời hạn khuyến mãi thật", "Thay khung ảnh bằng video sản phẩm"], kw: ["store sale", "orange gradient", "laptop discount"] },
+  { id: "k-tu-xa", title: "Làm việc từ xa (khung chữ mảnh)", cat: "Giới thiệu", seconds: 7, Comp: TuXa,
+    palette: ["#26332F", "#0F1614", "#FFFFFF", "#1B2220"],
+    fields: [F("t1", "Câu 1", "Cùng tôi làm việc từ xa", true), F("t2a", "Dòng nhỏ câu 2", "TÔI ĐANG SỬ DỤNG"), F("t2b", "Tên sản phẩm", "Laptop ABC"), F("t3", "Câu 3", "Thật dễ dàng và thuận tiện!", true)],
+    scenes: [["0–2s", "Câu mở đầu trong khung"], ["2–4s", "Giới thiệu sản phẩm đang dùng"], ["4–7s", "Cảm nhận ngắn"]],
+    how: ["Ghép video quay người dùng thật làm nền", "Chỉ nói trải nghiệm có thật"], kw: ["testimonial", "outlined text", "work from home"] },
   { id: "n-bai-hoc", title: "Bài học đắt giá", cat: "Quote · Chia sẻ", seconds: 5, Comp: BaiHoc,
     palette: ["#1238C9", "#FFFFFF", "#FFC21A", "#1A1A1A", "#C9D6FF", "#7FB6FF", "#FFD0A8"],
     fields: [F("title", "Dòng tiêu đề", "Bài học khó"), F("sub", "Dòng phụ", "đã thay đổi mình"), F("handle", "Tên kênh", "@tenkenh")],
@@ -561,5 +738,5 @@ export const TEMPLATES: Template[] = [
 ];
 
 export const defaults = (t: Template): Fields => Object.fromEntries(t.fields.map((x) => [x.key, x.def]));
-export const CATS = ["Quote · Chia sẻ", "Giới thiệu", "Tin tức AI", "Review tool", "Hook mở đầu", "So sánh", "Podcast · Quote", "Ra mắt sản phẩm", "Hướng dẫn", "Proof · Kết quả", "Chốt đơn · CTA", "Vlog", "Kết video", "Khác"];
+export const CATS = ["Khuyến mãi", "Quote · Chia sẻ", "Giới thiệu", "Tin tức AI", "Review tool", "Hook mở đầu", "So sánh", "Podcast · Quote", "Ra mắt sản phẩm", "Hướng dẫn", "Proof · Kết quả", "Chốt đơn · CTA", "Vlog", "Kết video", "Khác"];
 export { UI };
