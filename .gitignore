@@ -2,3 +2,10 @@ node_modules
 dist
 .claude/
 .vercel
+__pycache__/
+*.pyc
+config.json
+du-lieu/
+.work/
+tsconfig.tsbuildinfo
+*.filtergraph.txt

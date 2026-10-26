@@ -21,8 +21,8 @@ const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u
 const tById = (id: string) => TEMPLATES.find((t) => t.id === id);
 
 export default function App() {
-  const [dir, setDir] = useState<FileSystemDirectoryHandle | null>(null);
-  const [pending, setPending] = useState<FileSystemDirectoryHandle | null>(null); // thư mục cũ chờ cấp quyền lại
+  const [conn, setConn] = useState<S.Status | null | undefined>(undefined); // undefined: đang kiểm tra · null: chưa chạy máy chủ
+  const dir = !!conn;
   const [lib, setLib] = useState<Library>({ version: 1, items: [], favTemplates: [] });
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<Tab>("all");
@@ -37,42 +37,30 @@ export default function App() {
     toastT.current = window.setTimeout(() => setToast(""), 3200);
   }, []);
 
-  /* ---- mở thư mục đã chọn lần trước ---- */
+  /* ---- kết nối máy chủ trên máy và đọc thư viện ---- */
   useEffect(() => {
-    if (!S.supported()) return;
     (async () => {
-      const d = await S.savedFolder();
-      if (!d) return;
-      if ((await S.permission(d)) === "granted") await useFolder(d);
-      else setPending(d);
+      const s = await S.status();
+      setConn(s);
+      if (!s) return;
+      try {
+        const l = await S.loadLibrary();
+        setLib(l);
+        const map: Record<string, string> = {};
+        for (const it of l.items) if (it.kind === "upload" && it.file) map[it.file] = S.uploadUrl(it.file);
+        setUrls(map);
+      } catch (e) { say("Không đọc được thư viện: " + (e as Error).message); }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [say]);
 
-  async function useFolder(d: FileSystemDirectoryHandle) {
-    const l = await S.loadLibrary(d);
-    setDir(d);
-    setPending(null);
-    setLib(l);
-    const map: Record<string, string> = {};
-    for (const it of l.items) if (it.kind === "upload" && it.file) {
-      try { map[it.file] = await S.uploadUrl(d, it.file); } catch { /* file đã bị xoá khỏi thư mục */ }
-    }
-    setUrls(map);
+  async function ensureDir(): Promise<boolean> {
+    if (dir) return true;
+    say("Chưa kết nối máy chủ. Hãy mở app bằng Chay_app.bat");
+    return false;
   }
-  async function choose() {
-    try { await useFolder(await S.pickFolder()); say("Đã kết nối thư mục"); }
-    catch (e) { if ((e as Error).name !== "AbortError") say("Không mở được thư mục: " + (e as Error).message); }
-  }
-  async function ensureDir(): Promise<FileSystemDirectoryHandle | null> {
-    if (dir) return dir;
-    if (pending && (await S.reopen(pending))) { await useFolder(pending); return pending; }
-    if (!S.supported()) { say("Hãy mở app bằng Chrome hoặc Edge trên máy tính để lưu dữ liệu"); return null; }
-    try { const d = await S.pickFolder(); await useFolder(d); return d; } catch { return null; }
-  }
-  async function commit(next: Library, d = dir) {
+  async function commit(next: Library, _saved?: boolean) {
     setLib(next);
-    if (d) await S.saveLibrary(d, next);
+    if (dir) await S.saveLibrary(next);
   }
 
   /* ---- danh sách hiển thị ---- */
@@ -85,7 +73,7 @@ export default function App() {
       })
       .filter((x): x is Item => !!x)
       .sort((a, b) => b.createdAt - a.createdAt);
-    const st: Item[] = TEMPLATES.map((t) => ({ kind: "starter", id: t.id, t, title: t.title, cat: t.cat, fav: lib.favTemplates.includes(t.id), createdAt: 0 }));
+    const st: Item[] = TEMPLATES.filter((t) => !t.hidden).map((t) => ({ kind: "starter", id: t.id, t, title: t.title, cat: t.cat, fav: lib.favTemplates.includes(t.id), createdAt: 0 }));
     let list = tab === "mine" ? mine : tab === "starter" ? st : [...mine, ...st];
     if (tab === "fav") list = [...mine, ...st].filter((i) => i.fav);
     if (cat) list = list.filter((i) => i.cat === cat);
@@ -118,6 +106,7 @@ export default function App() {
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
               <input id="q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm mẫu: tin nóng, review, chốt đơn…" aria-label="Tìm mẫu" />
             </label>
+            <a className="btn" href="#studio?new=1">Trình chỉnh sửa</a>
             <button className="btn primary" type="button" onClick={() => setModal({ type: "upload" })}>+ Thêm video mẫu</button>
           </div>
           <div className="row2">
@@ -135,9 +124,9 @@ export default function App() {
       </header>
 
       <main className="main">
-        <FolderBar dir={dir} pending={pending} onChoose={choose} onReopen={async () => { if (pending && (await S.reopen(pending))) await useFolder(pending); }} />
+        <FolderBar conn={conn} />
         <div className="meta">
-          <span><b>{items.length}</b> mẫu đang hiển thị · {nMine} video của bạn · {TEMPLATES.length} mẫu có sẵn</span>
+          <span><b>{items.length}</b> mẫu đang hiển thị · {nMine} video của bạn · {TEMPLATES.filter((t) => !t.hidden).length} mẫu có sẵn</span>
           <span>Rê chuột để xem chuyển động · bấm vào thẻ để sửa nội dung</span>
         </div>
         <div className="grid">
@@ -184,7 +173,7 @@ export default function App() {
       {modal?.type === "full" && <FullScreen t={modal.t} f={modal.f} onClose={() => setModal({ type: "editor", t: modal.t })} />}
       {modal?.type === "upload" && (
         <UploadForm u={modal.u} onClose={() => setModal(null)} onSubmit={async (data, file) => {
-          const d = await ensureDir(); if (!d) return "Cần chọn thư mục lưu dữ liệu trước.";
+          const d = await ensureDir(); if (!d) return "Chưa kết nối máy chủ. Hãy mở app bằng Chay_app.bat.";
           if (modal.u) {
             await commit({ ...lib, items: lib.items.map((x) => (x.id === modal.u!.id ? { ...(x as Upload), ...data } : x)) }, d);
             setModal(null); say("Đã lưu thay đổi"); return null;
@@ -192,8 +181,8 @@ export default function App() {
           const id = S.newId();
           let fileName: string | null = null;
           if (file) {
-            fileName = await S.saveUpload(d, id, file);
-            const url = await S.uploadUrl(d, fileName);
+            fileName = await S.saveUpload(id, file);
+            const url = await S.uploadUrl(fileName);
             setUrls((m) => ({ ...m, [fileName!]: url }));
           }
           const u: Upload = { id, kind: "upload", ...data, file: fileName, type: file ? (file.type.startsWith("image") ? "image" : "video") : "link", size: file?.size ?? null, fav: false, createdAt: Date.now() };
@@ -206,7 +195,7 @@ export default function App() {
           onEdit={() => setModal({ type: "upload", u: modal.u })}
           onFav={() => toggleFav({ kind: "upload", id: modal.u.id, u: modal.u, title: "", cat: "", fav: modal.u.fav, createdAt: 0 })}
           onDelete={async () => {
-            if (dir && modal.u.file) await S.deleteUpload(dir, modal.u.file);
+            if (dir && modal.u.file) await S.deleteUpload(modal.u.file);
             await commit({ ...lib, items: lib.items.filter((x) => x.id !== modal.u.id) }); setModal(null); say("Đã xoá video");
           }} />
       )}
@@ -216,27 +205,15 @@ export default function App() {
 }
 
 /* ================= Thanh thư mục ================= */
-function FolderBar({ dir, pending, onChoose, onReopen }: { dir: FileSystemDirectoryHandle | null; pending: FileSystemDirectoryHandle | null; onChoose: () => void; onReopen: () => void }) {
-  if (!S.supported())
-    return <div className="notice warn">Trình duyệt này chưa lưu được dữ liệu vào máy. Mở app bằng <b>Chrome</b> hoặc <b>Edge</b> trên máy tính để lưu video và các bản đã sửa. Bạn vẫn xem và xuất MP4 mẫu có sẵn được.</div>;
-  if (dir)
-    return (
-      <div className="notice ok">
-        <span>Đang lưu vào thư mục <b>{dir.name}</b> trên máy bạn (library.json · videos · xuat-video)</span>
-        <button className="btn sm ghost" type="button" onClick={onChoose}>Đổi thư mục</button>
-      </div>
-    );
-  if (pending)
-    return (
-      <div className="notice">
-        <span>Bấm để cho phép app mở lại thư mục <b>{pending.name}</b>.</span>
-        <button className="btn sm primary" type="button" onClick={onReopen}>Mở lại thư mục</button>
-      </div>
-    );
+function FolderBar({ conn }: { conn: S.Status | null | undefined }) {
+  if (conn === undefined) return <div className="notice"><span>Đang kết nối máy chủ trên máy bạn…</span></div>;
+  if (!conn)
+    return <div className="notice warn">Chưa kết nối được máy chủ trên máy. Hãy mở app bằng <b>Chay_app.bat</b> (lần đầu chạy <b>Cai_dat.bat</b>). Bạn vẫn xem và xuất MP4 mẫu có sẵn được, nhưng chưa lưu được dữ liệu.</div>;
+  const miss = [!conn.ffmpeg && "FFmpeg", !conn.whisper && "faster-whisper", !conn.edgeTts && "edge-tts"].filter(Boolean).join(", ");
   return (
-    <div className="notice">
-      <span><b>Bước đầu tiên:</b> chọn một thư mục trên máy (ví dụ <code>D:\Kho Reel Mau</code>). Video, bản đã sửa và file MP4 đều lưu ở đó, không đẩy lên mạng.</span>
-      <button className="btn sm primary" type="button" onClick={onChoose}>Chọn thư mục lưu dữ liệu</button>
+    <div className="notice ok">
+      <span>Đang lưu vào thư mục <b>{conn.dataDir}</b> trên máy bạn{miss ? ` · thiếu: ${miss} (chạy Cai_dat.bat)` : ""}</span>
+      <button className="btn sm ghost" type="button" onClick={() => S.openFolder()}>Mở thư mục</button>
     </div>
   );
 }
@@ -321,6 +298,7 @@ function StarterDetail({ t, fav, onClose, onEdit, onFav }: { t: Template; fav: b
         <ul className="howto">{t.how.map((h) => <li key={h}>{h}</li>)}</ul>
         <div className="actions">
           <button className="btn primary" type="button" onClick={onEdit}>✎ Sửa nội dung &amp; xuất MP4</button>
+          <button className="btn" type="button" onClick={() => S.sendToStudio(t.id, f)}>Đặt lên video trong Trình chỉnh sửa</button>
           <button className="btn" type="button" onClick={onFav}>{fav ? "★ Đã yêu thích" : "☆ Yêu thích"}</button>
         </div>
       </div>
@@ -330,9 +308,9 @@ function StarterDetail({ t, fav, onClose, onEdit, onFav }: { t: Template; fav: b
 
 /* ================= Trình sửa nội dung + xuất MP4 ================= */
 function Editor({ t, e, dir, say, onClose, onSave, onDelete, onFull, ensureDir }: {
-  t: Template; e?: Edit; dir: FileSystemDirectoryHandle | null; say: (m: string) => void; onClose: () => void;
+  t: Template; e?: Edit; dir: boolean; say: (m: string) => void; onClose: () => void;
   onSave: (title: string, f: Fields) => Promise<boolean>; onDelete?: () => Promise<void>; onFull: (f: Fields) => void;
-  ensureDir: () => Promise<FileSystemDirectoryHandle | null>;
+  ensureDir: () => Promise<boolean>;
 }) {
   const [f, setF] = useState<Fields>(() => ({ ...defaults(t), ...(e?.fields || {}) }));
   const [title, setTitle] = useState(e?.title || `${t.title} – bản của tôi`);
@@ -352,11 +330,11 @@ function Editor({ t, e, dir, say, onClose, onSave, onDelete, onFull, ensureDir }
     try {
       const blob = await exportMp4(t, f, (p) => setExp({ p, ctl }), ctl.signal);
       const name = `${S.safeName(title)}.mp4`;
-      if (d) await S.saveExport(d, name, blob);
+      if (d) await S.saveExport(name, blob);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 30000);
-      say(d ? `Đã xuất ${name} vào thư mục xuat-video` : `Đã xuất ${name}`);
+      say(d ? `Đã xuất ${name} vào thư mục Xuất video` : `Đã xuất ${name}`);
     } catch (err) {
       if (!ctl.signal.aborted) setExpErr("Xuất video bị lỗi: " + (err as Error).message);
     } finally { setExp(null); }
@@ -393,6 +371,7 @@ function Editor({ t, e, dir, say, onClose, onSave, onDelete, onFull, ensureDir }
           <button className="btn" type="button" disabled={busy === "save"} onClick={async () => { setBusy("save"); await onSave(title.trim() || t.title, f); setBusy(""); }}>
             {busy === "save" ? "Đang lưu…" : e ? "Lưu thay đổi" : "Lưu thành bản của tôi"}
           </button>
+          <button className="btn" type="button" onClick={() => S.sendToStudio(t.id, f)}>Đặt lên video trong Trình chỉnh sửa</button>
           <button className="btn ghost" type="button" onClick={() => onFull(f)}>⛶ Toàn màn hình</button>
           {onDelete ? (
             <button className="btn danger" type="button" onClick={() => (armed ? onDelete() : setArmed(true))}>{armed ? "Bấm lần nữa để xoá" : "Xoá bản này"}</button>

@@ -1,0 +1,197 @@
+/* Trình chỉnh sửa: thư viện (trái) · xem trước (giữa) · thuộc tính (phải) · dòng thời gian (dưới) */
+.studio { height: 100vh; height: 100dvh; display: grid; grid-template-columns: 290px minmax(0, 1fr) 290px; grid-template-rows: auto auto minmax(0, 1fr) 250px;
+  grid-template-areas: "bar bar bar" "ban ban ban" "media stage insp" "tl tl tl"; background: var(--bg); color: var(--ink); overflow: hidden }
+.sbar { grid-area: bar; display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap }
+.sbar h1 { margin: 0 0 0 6px; font-size: 17px; font-weight: 800 }
+.sp { flex: 1 }
+.sbanner { grid-area: ban; background: #FFF3C4; color: #4A3B00; padding: 8px 16px; font-size: 14px }
+@media (prefers-color-scheme: dark) { .sbanner { background: #3C3410; color: #FFEA88 } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin: 10px; padding: 12px; overflow: auto; min-height: 0 }
+.media { grid-area: media; display: flex; flex-direction: column; gap: 8px }
+.insp { grid-area: insp }
+.insp h3 { margin: 14px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted) }
+.insp h3:first-child { margin-top: 0 }
+.hint { color: var(--muted); font-size: 13px; margin: 2px 0 }
+.cname { margin: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+.ptabs { display: flex; gap: 4px; flex-wrap: wrap }
+.ptab { border: 0; background: var(--chip); padding: 6px 10px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600 }
+.ptab[aria-selected="true"] { background: var(--neon); color: var(--on-neon) }
+.mlist { display: flex; flex-direction: column; gap: 6px; overflow: auto; min-height: 0 }
+.mitem { display: flex; align-items: center; gap: 6px }
+.mmain { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 6px; cursor: pointer }
+.mmain:hover { border-color: var(--ink) }
+.th { width: 38px; height: 56px; object-fit: cover; border-radius: 6px; background: #000; flex: none }
+.th.doc { display: grid; place-items: center; background: var(--chip); color: var(--muted); font-family: monospace }
+.mn { min-width: 0; display: flex; flex-direction: column; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.mn small { color: var(--muted); font-weight: 400 }
+.mini { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 8px; font-size: 12px; cursor: pointer; flex: none }
+.mini.x { color: var(--danger); padding: 4px 9px }
+
+.f { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; font-size: 13px }
+.f > span { font-weight: 600 }
+.f em { font-weight: 400; color: var(--muted); font-style: normal }
+.f small { color: var(--muted) }
+.f input:not([type="range"]):not([type="color"]), .f select { height: 36px; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; background: var(--bg) }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+.seg { display: flex; gap: 4px; flex-wrap: wrap }
+.seg button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.bgbox.off { opacity: .55 }
+.colors { display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.colors input[type="color"] { width: 38px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: none }
+.sw { display: inline-flex; gap: 4px }
+.sw button { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); cursor: pointer; padding: 0 }
+
+.stage { grid-area: stage; min-width: 0; min-height: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 8%, var(--bg)); margin: 10px 0; border-radius: 12px }
+.frame { position: relative; overflow: hidden; background: #000; border-radius: 6px; box-shadow: var(--shadow) }
+.frame .vid, .frame .bgl { position: absolute; inset: 0; width: 100%; height: 100% }
+.cover { object-fit: cover }
+.contain { object-fit: contain }
+.blur { filter: blur(22px); transform: scale(1.12) }
+.empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; margin: 0; color: #fff; font-size: 14px }
+
+.tl { grid-area: tl; background: var(--surface); border-top: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0 }
+.tbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; flex-wrap: wrap }
+.time { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted) }
+.time b { color: var(--ink) }
+.zoom { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted) }
+.tl-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0 }
+.tl-inner { position: relative; height: 100%; min-height: 130px; padding-bottom: 8px }
+.ruler { height: 26px; position: relative; border-bottom: 1px solid var(--line); cursor: col-resize; user-select: none }
+.tick { position: absolute; top: 0; height: 100%; padding-left: 4px; border-left: 1px solid var(--line); font-size: 11px; color: var(--muted); line-height: 26px }
+.track { position: relative; height: 84px; margin-top: 10px; background: color-mix(in srgb, var(--ink) 4%, transparent); border-radius: 8px }
+.tl-empty { margin: 0; padding: 30px 14px; color: var(--muted); font-size: 14px; position: sticky; left: 0 }
+.clip { position: absolute; top: 4px; bottom: 4px; border-radius: 8px; background: #3B5B7A; color: #fff; padding: 6px 14px; overflow: hidden; cursor: grab; display: flex; flex-direction: column; justify-content: center; border: 2px solid transparent; touch-action: none; user-select: none }
+.clip.img { background: #8A5A7A }
+.clip.sel { border-color: var(--neon); box-shadow: 0 0 0 2px var(--ink) }
+.clip .cn { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.clip small { font-size: 11px; opacity: .8 }
+.clip .h { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; background: rgba(255, 255, 255, .25) }
+.clip .h.l { left: 0 }
+.clip .h.r { right: 0 }
+.clip .h:hover { background: var(--neon) }
+.playhead { position: absolute; top: 0; bottom: 0; left: 0; width: 0; pointer-events: none; will-change: transform; z-index: 3 }
+.playhead i { position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: #FF3B6B }
+.playhead i::before { content: ""; position: absolute; top: 0; left: -5px; border: 6px solid transparent; border-top-color: #FF3B6B }
+
+.modal { position: fixed; inset: 0; background: rgba(0, 0, 0, .55); display: grid; place-items: center; z-index: 20; padding: 16px }
+.modal .box { background: var(--surface); border-radius: 14px; padding: 20px; width: min(520px, 100%); max-height: 90vh; overflow: auto }
+.modal h2 { margin: 0 0 8px; font-size: 18px }
+.acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px }
+.prog { display: flex; align-items: center; gap: 10px; font-size: 13px; margin: 10px 0 }
+.bar { flex: 1; height: 10px; border-radius: 999px; background: var(--chip); overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--neon); transition: width .3s }
+.err { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); padding: 8px; border-radius: 8px; font-size: 12px; white-space: pre-wrap; max-height: 160px; overflow: auto }
+.result { width: 100%; max-height: 42vh; background: #000; border-radius: 8px; margin-top: 8px }
+
+@media (max-width: 1000px) {
+  .studio { height: auto; overflow: visible; grid-template-columns: 1fr; grid-template-rows: auto auto 70vh auto auto 260px;
+    grid-template-areas: "bar" "ban" "stage" "media" "insp" "tl" }
+  .media, .insp { max-height: 60vh }
+}
+
+a.btn { text-decoration: none; color: inherit }
+a.btn.primary { color: var(--on-neon) }
+.two { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.f input:not([type="range"]):not([type="color"]), .f select { min-width: 0; width: 100% }
+
+/* lớp mẫu / chữ */
+.studio { grid-template-rows: auto auto minmax(0, 1fr) 300px }
+.tl-scroll { overflow-y: auto }
+.otrack { position: relative; margin-top: 8px; background: color-mix(in srgb, #8A5AF0 7%, transparent); border-radius: 8px; min-height: 48px }
+.oclip { position: absolute; height: 34px; border-radius: 8px; background: #6B4BD6; color: #fff; padding: 2px 14px; overflow: hidden; cursor: grab; display: flex; align-items: center; gap: 8px; border: 2px solid transparent; touch-action: none; user-select: none }
+.oclip.sel { border-color: var(--neon); box-shadow: 0 0 0 2px var(--ink) }
+.oclip .cn { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.oclip small { font-size: 11px; opacity: .8; flex: none }
+.oclip .h { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; background: rgba(255, 255, 255, .25) }
+.oclip .h.l { left: 0 }
+.oclip .h.r { right: 0 }
+.oclip .h:hover { background: var(--neon) }
+.chk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin: 8px 0 }
+.chk small { display: block; color: var(--muted) }
+.f.sub { margin: 0 }
+.f textarea { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); resize: vertical; width: 100% }
+.pal { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 }
+.pc { position: relative; display: inline-block }
+.pc input[type="color"] { width: 40px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: none }
+.pc i { position: absolute; right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--surface) }
+.acts.left { justify-content: flex-start; margin-top: 16px }
+.ovl { position: absolute; display: block; pointer-events: none }
+.tpl-th { width: 38px; height: 68px; border-radius: 6px; overflow: hidden; flex: none; background: #000 }
+.msearch { height: 34px; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; background: var(--bg); width: 100% }
+.mgroup { margin: 8px 0 2px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted) }
+@media (max-width: 1000px) { .studio { grid-template-rows: auto auto 70vh auto auto 300px } }
+.seg button:disabled { opacity: .4; cursor: not-allowed }
+
+/* nhạc / giọng đọc */
+.atrack { position: relative; margin-top: 8px; background: color-mix(in srgb, #2E9C6A 7%, transparent); border-radius: 8px; min-height: 48px }
+.aclip { position: absolute; height: 34px; border-radius: 8px; color: #fff; padding: 2px 14px; overflow: hidden; cursor: grab; display: flex; align-items: center; gap: 8px; border: 2px solid transparent; touch-action: none; user-select: none }
+.aclip.music { background: #2E7A52 }
+.aclip.voice { background: #1E6F8C }
+.aclip.sel { border-color: var(--neon); box-shadow: 0 0 0 2px var(--ink) }
+.aclip .cn { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.aclip small { font-size: 11px; opacity: .85; flex: none }
+.aclip .h { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; background: rgba(255, 255, 255, .25) }
+.aclip .h.l { left: 0 }
+.aclip .h.r { right: 0 }
+.aclip .h:hover { background: var(--neon) }
+.studio { grid-template-rows: auto auto minmax(0, 1fr) 360px }
+@media (max-width: 1000px) { .studio { grid-template-rows: auto auto 70vh auto auto 360px } }
+
+/* bộ lọc, logo */
+.flt { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 4px 0 }
+.fl { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; text-align: left }
+.fl[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.fl i { width: 22px; height: 22px; border-radius: 6px; flex: none; border: 1px solid var(--line) }
+.fl i.none { background: repeating-linear-gradient(45deg, #ccc 0 4px, #fff 4px 8px) }
+.row { display: flex; gap: 6px; align-items: center }
+.row select { flex: 1; min-width: 0 }
+.hint.pad { padding: 4px 0 }
+.brandlogo { position: absolute; pointer-events: none }
+
+/* danh sách cụm phụ đề */
+.cues { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow: auto; margin-bottom: 6px }
+.cue { display: grid; grid-template-columns: 44px 1fr auto; gap: 6px; align-items: center }
+.cue small { color: var(--muted); font-variant-numeric: tabular-nums }
+.cue input { height: 32px; border: 1px solid var(--line); border-radius: 8px; padding: 0 8px; background: var(--bg); min-width: 0 }
+
+/* tạo giọng đọc */
+.voice { display: flex; flex-direction: column; gap: 4px }
+.voice textarea { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); resize: vertical; width: 100% }
+.keybox { border: 1px dashed var(--line); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px }
+.keybox input { height: 34px; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; background: var(--bg) }
+.link { border: 0; background: none; color: inherit; text-decoration: underline; cursor: pointer; padding: 0; font: inherit }
+.capmodal .prog { margin: 14px 0 }
+
+.vlayer { position: absolute; inset: 0 }
+
+/* khung timeline gọn, ưu tiên trình phát; kéo thanh ngăn để đổi độ cao */
+.studio { grid-template-rows: auto auto minmax(0, 1fr) 12px var(--tlh, 252px);
+  grid-template-areas: "bar bar bar" "ban ban ban" "media stage insp" "split split split" "tl tl tl" }
+.splitter { grid-area: split; display: grid; place-items: center; cursor: row-resize; touch-action: none; user-select: none; background: var(--surface); border-top: 1px solid var(--line) }
+.splitter i { width: 56px; height: 4px; border-radius: 999px; background: var(--line) }
+.splitter:hover i, .splitter:focus-visible i { background: var(--ink) }
+.tl { min-height: 0 }
+.tbar { padding: 4px 12px }
+.tl-scroll { overflow-y: auto }
+.tl-inner { min-height: 0; padding-bottom: 6px }
+.track { height: 62px; margin-top: 6px }
+.otrack, .atrack { margin-top: 6px }
+@media (max-width: 1000px) {
+  .studio { grid-template-rows: auto auto 70vh auto auto 12px var(--tlh, 252px);
+    grid-template-areas: "bar" "ban" "stage" "media" "insp" "split" "tl" }
+}
+
+/* tỉ lệ cố định theo cửa sổ: cột trái/phải ~16,5% chiều ngang, timeline ~30% chiều cao (kéo thanh ngăn để đổi) */
+.studio { --tlf: 0.3; grid-template-columns: minmax(200px, 16.5vw) minmax(0, 1fr) minmax(200px, 16.5vw);
+  grid-template-rows: auto auto minmax(0, 1fr) 12px calc(var(--tlf) * 100vh); }
+@supports (height: 100dvh) { .studio { grid-template-rows: auto auto minmax(0, 1fr) 12px calc(var(--tlf) * 100dvh); } }
+@media (max-width: 1000px) {
+  .studio { grid-template-columns: 1fr; grid-template-rows: auto auto 70vh auto auto 12px calc(var(--tlf) * 100vh); }
+}
+
+/* nút dài trong cột thuộc tính / thư viện tự xuống dòng, không tạo thanh cuộn ngang */
+.insp, .media { overflow-x: hidden }
+.insp .btn, .media .btn { white-space: normal; height: auto; min-height: 34px; padding-block: 6px; text-align: left; line-height: 1.3 }

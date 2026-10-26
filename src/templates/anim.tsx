@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { useEnv, useK } from "./env";
 import { UI } from "./fonts";
 
 /** 1 đơn vị = 1% chiều ngang khung 1080px (giống cqw trong bản HTML cũ) */
@@ -32,13 +33,19 @@ export function useLoop(periodSec: number, offsetSec = 0) {
 }
 
 export function Frame({ bg, color = "#fff", children }: { bg: string; color?: string; children: ReactNode }) {
+  const { transparent } = useEnv();
+  const K = useK();
   return (
-    <AbsoluteFill style={{ background: bg, color, fontFamily: UI, overflow: "hidden" }}>{children}</AbsoluteFill>
+    <AbsoluteFill style={{ background: transparent ? "transparent" : K(bg), color: K(color), fontFamily: UI, overflow: "hidden" }}>{children}</AbsoluteFill>
   );
 }
 
 /** Lưới hoặc chấm nền vẽ bằng SVG để xuất video giữ nguyên */
 export function GridBg({ step, color }: { step: number; color: string }) {
+  const { transparent } = useEnv();
+  const K = useK();
+  color = K(color);
+  if (transparent) return null;
   return (
     <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
       <defs>
@@ -52,6 +59,10 @@ export function GridBg({ step, color }: { step: number; color: string }) {
 }
 
 export function DotBg({ step, r, color }: { step: number; r: number; color: string }) {
+  const { transparent } = useEnv();
+  const K = useK();
+  color = K(color);
+  if (transparent) return null;
   const id = `d${step}${color.replace(/\W/g, "")}`;
   return (
     <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
