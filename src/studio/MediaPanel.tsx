@@ -6,12 +6,11 @@ import { TemplateRunner } from "../templates/runner";
 import { isImage, type AClip, type Src } from "./model";
 import VoiceMaker from "./VoiceMaker";
 
-type TabId = "tpl" | "video" | "bg" | "music" | "voice" | "project";
+type TabId = "tpl" | "bg" | "music" | "voice" | "project";
 type Tab = { id: TabId; kind?: S.Kind; label: string; hint: string };
 const TABS: Tab[] = [
   { id: "tpl", label: "Video mẫu", hint: "Kho mẫu của bạn. Bấm một mẫu để đặt lên timeline, rồi sửa chữ, màu, thời gian ở cột bên phải." },
-  { id: "video", kind: "video", label: "Kho video", hint: "Video và ảnh của bạn. Bấm để thêm vào cuối timeline." },
-  { id: "bg", kind: "bg", label: "Nền", hint: "Video hoặc ảnh dùng làm nền phía sau video." },
+  { id: "bg", kind: "bg", label: "Video & nền", hint: "Video và ảnh của bạn. Bấm tên để thêm vào cuối timeline, hoặc bấm “Dùng làm nền” để đặt làm nền phía sau." },
   { id: "music", kind: "music", label: "Nhạc", hint: "Nhạc nền của bạn. Bấm tên để đặt vào timeline tại đầu phát, bấm ▶ để nghe thử." },
   { id: "voice", kind: "voice", label: "Giọng đọc", hint: "Gõ văn bản để tạo giọng đọc, hoặc tải file ghi âm của bạn." },
   { id: "project", kind: "project", label: "Dự án", hint: "Các dự án đã lưu. Bấm để mở." },
